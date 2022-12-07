@@ -18,7 +18,15 @@ KUSHWANTH SAI LALAM, kula2453\@colorado.edu
 
 #### What are QS Rankings and how are they calculated?
 
-Quacquarelli Symonds publishes its global university rankings every year in the form of the QS World University Rankings. One of the top three most popular university rankings in the world, the QS ranking is approved by the International Ranking Expert Group (IREG) and is published annually. QS releases its rankings of universities in collaboration with Elsevier. QS Ranking is based on academic reputation, employer reputation, citations per faculty, student-to-faculty ratio, international faculty ratio and international student ratio.
+-   Quacquarelli Symonds publishes its global university rankings every year in the form of the QS World University Rankings. One of the top three most popular university rankings in the world, the QS ranking is approved by the International Ranking Expert Group (IREG) and is published annually. QS releases its rankings of universities in collaboration with Elsevier.
+
+-   QS designed its rankings to assess performance according to what it believes to be key aspects of a university's mission: teaching, research, nurturing employability, and internationalisation. The methodological framework it follows assess universities based on six metrics:\
+    a. Academic Reputation (40%)\
+    b. Employer Reputation (10%)\
+    c. Faculty/Student Ratio (20%)\
+    d. Citations per faculty (20%)\
+    e. International Faculty Ratio (5%)\
+    f. International Student Ratio (5%)
 
 #### Problem Statement:
 
@@ -76,7 +84,7 @@ df <- read_csv("data/qs-world-university-rankings-2017-to-2022-V2.csv")
 df
 ```
 
-#### EDA:
+#### Pre-Processing the Data:
 
 -   Checking total number of rows and columns in the data.
 
@@ -91,62 +99,107 @@ ncol(df)
 lapply(df, function(x) { length(which(is.na(x)))})
 ```
 
--   
+-   Since multiple columns have missing values, let's drop rows that have more than 4 missing values in it as we can't work with rows of data that have lots of missing attributes. (
+
+    (\*\*\*\*\*\*\*Paraphrase in proper way later ----- Need edit)
 
 ```{r}
-df$rank<- as.numeric(df$rank_display)
+df$na_count <- apply(df, 1, function(x) sum(is.na(x)))
+df<- df[df$na_count<=4,]
+```
+
+-   Dropping 'link' and 'logo' column as they are hyperlinks.
+
+```{r}
+df <- subset(df, select = -c(link,logo))
+```
+
+-   Converting the 'international_students', 'faculty_count' and 'rank_display' column to numerical by removing all the special characters in them.
+
+```{r}
+df$international_students<- as.numeric(gsub('_', '', df$international_students))
+df$faculty_count<- as.numeric(gsub('_', '', df$faculty_count))
+df$rank<- as.numeric(gsub('-\\w+','',df$rank_display))
+df$research_output<- gsub('Very high','Very High',df$research_output)
+```
+
+-   Converting 'Year' Column datatype to character.
+
+```{r}
 df$year<-as.character(df$year)
+```
+
+#### Exploratory Data Analysis:
+
+```{r}
+ggplot(data=df,aes(x=region))+geom_bar()
+```
+
+-   Europe tends to be the continent with more number of universities though we have to consider the fact that they have included Russia in Europe although it belongs to both Europe and Asia. It is followed by Asia and North America.
+
+```{r}
 ucb<-df[df$university %in% c("University of Colorado Boulder"),]
 ggplot(data=ucb, aes(x=year, y=rank,group = 1))+geom_line()+geom_point()
 ```
 
--   
+-   As we can see here, the QS ranking of University of Colorado Boulder has been decreasing gradually every year. In 2017 it is was ranked 150 but in 2022 it is ranking around 250.
 
 ```{r}
 universities<-df[df$university %in% c("University of Colorado Boulder","Northwestern University","John Hopkins University","University of Southern California","University at Buffalo SUNY"),]
 ggplot(data=universities, aes(x=year, y=rank,group=university,color=university))+geom_line()+geom_point()
 ```
 
--   
-
-```{r}
-ggplot(data=df, aes(x=type))+geom_bar()
-```
-
--   
+-   Among 4 universities - Northwestern University, University at Buffalo SUNY, University of Colorado Boulder and University of Southern California only University of Southern California followed the increasing trend in QS ranking. The QS ranking of Northwestern University has been following a constant trend while in the case of University of Colorado Boulder and University at Buffalo SUNY the QS ranking has been following a declining trend.
 
 ```{r}
 ggplot(df, aes(x=score, y=student_faculty_ratio)) + geom_point()
 ```
 
--   
+-   From the above scatter plot, we can infer the relationship between student_faculty_ratio and QS score. There is slightly negative correlation between student_faculty_ratio and score. The universities that had higher score had less student to faculty ratio. That means, there are more number of faculty for a given set of students in universities that were rated higher in QS rankings. (\*\*\*\*\*\*\*Use this last point in box plot ----- Need edit)
+
+**Problem Statement Analysis:**
+
+-   Fetching the data of Top 100 ranked universities
 
 ```{r}
-ggplot(df, aes(x=score, y=faculty_count,color=type)) + geom_point()
-
+top_univ<-df[df$rank %in% c(1:100),]
 ```
 
--   
+-   Next to teaching, Academic research is viewed as a very important factor. Understanding research output can give us insights about how the top universities prioritize them.
 
 ```{r}
-ggplot(df, aes(x=score)) + geom_histogram()
+ggplot(top_univ, aes(research_output, fill =type)) + geom_bar(stat="count", position = "dodge")
 ```
 
--   
+-   Add info
 
 ```{r}
-ggplot(data=universities,mapping=aes(x=university,y=score,fill=university))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+ggplot(df, aes(research_output, y=faculty_count,fill =type)) + geom_bar(stat="identity",position = "dodge")
 ```
 
-## Biasness in the dataset:
+-   Add info
+
+```{r}
+ggplot(data=df,mapping=aes(x=research_output,y=student_faculty_ratio,fill=type))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+-   Add info
+
+## Finding Bias in the dataset:
 
 ```{r}
 bias_in_score = sum(is.na(df$score))*100/nrow(df)
 bias_in_score
 ```
 
-From the above code snippet, we can see that the column score has 56.49491% of the values missing for the given universities.
+-   From the above code snippet, we can see that the column score has 56.49491% of the values missing for the given universities.
 
 ```{r}
 
 ```
+
+-   Add info
+
+## Conclusion:
+
+Add info

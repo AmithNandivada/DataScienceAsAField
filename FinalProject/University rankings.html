@@ -135,7 +135,24 @@ KUSHWANTH SAI LALAM, kula2453@colorado.edu</p>
 <h2 class="anchored" data-anchor-id="about-the-dataset">About the dataset:</h2>
 <section id="what-are-qs-rankings-and-how-are-they-calculated" class="level4">
 <h4 class="anchored" data-anchor-id="what-are-qs-rankings-and-how-are-they-calculated">What are QS Rankings and how are they calculated?</h4>
-<p>Quacquarelli Symonds publishes its global university rankings every year in the form of the QS World University Rankings. One of the top three most popular university rankings in the world, the QS ranking is approved by the International Ranking Expert Group (IREG) and is published annually. QS releases its rankings of universities in collaboration with Elsevier. QS Ranking is based on academic reputation, employer reputation, citations per faculty, student-to-faculty ratio, international faculty ratio and international student ratio.</p>
+<ul>
+<li><p>Quacquarelli Symonds publishes its global university rankings every year in the form of the QS World University Rankings. One of the top three most popular university rankings in the world, the QS ranking is approved by the International Ranking Expert Group (IREG) and is published annually. QS releases its rankings of universities in collaboration with Elsevier.</p></li>
+<li><p>QS designed its rankings to assess performance according to what it believes to be key aspects of a university’s mission: teaching, research, nurturing employability, and internationalisation. The methodological framework it follows assess universities based on six metrics:<br>
+</p>
+<ol type="a">
+<li>Academic Reputation (40%)<br>
+</li>
+<li>Employer Reputation (10%)<br>
+</li>
+<li>Faculty/Student Ratio (20%)<br>
+</li>
+<li>Citations per faculty (20%)<br>
+</li>
+<li>International Faculty Ratio (5%)<br>
+</li>
+<li>International Student&nbsp;Ratio&nbsp;(5%)</li>
+</ol></li>
+</ul>
 </section>
 <section id="problem-statement" class="level4">
 <h4 class="anchored" data-anchor-id="problem-statement">Problem Statement:</h4>
@@ -243,8 +260,8 @@ num  (2): international_students, faculty_count
 </div>
 </div>
 </section>
-<section id="eda" class="level4">
-<h4 class="anchored" data-anchor-id="eda">EDA:</h4>
+<section id="pre-processing-the-data" class="level4">
+<h4 class="anchored" data-anchor-id="pre-processing-the-data">Pre-Processing the Data:</h4>
 <ul>
 <li>Checking total number of rows and columns in the data.</li>
 </ul>
@@ -311,102 +328,145 @@ $faculty_count
 </div>
 </div>
 <ul>
-<li></li>
+<li><p>Since multiple columns have missing values, let’s drop rows that have more than 4 missing values in it as we can’t work with rows of data that have lots of missing attributes. (</p>
+<p>(*******Paraphrase in proper way later —– Need edit)</p></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>rank<span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(df<span class="sc">$</span>rank_display)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: NAs introduced by coercion</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>year<span class="ot">&lt;-</span><span class="fu">as.character</span>(df<span class="sc">$</span>year)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>ucb<span class="ot">&lt;-</span>df[df<span class="sc">$</span>university <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"University of Colorado Boulder"</span>),]</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>ucb, <span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>rank,<span class="at">group =</span> <span class="dv">1</span>))<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="University-rankings_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
-</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>na_count <span class="ot">&lt;-</span> <span class="fu">apply</span>(df, <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="fu">is.na</span>(x)))</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span> df[df<span class="sc">$</span>na_count<span class="sc">&lt;=</span><span class="dv">4</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
-<li></li>
+<li>Dropping ‘link’ and ‘logo’ column as they are hyperlinks.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>universities<span class="ot">&lt;-</span>df[df<span class="sc">$</span>university <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"University of Colorado Boulder"</span>,<span class="st">"Northwestern University"</span>,<span class="st">"John Hopkins University"</span>,<span class="st">"University of Southern California"</span>,<span class="st">"University at Buffalo SUNY"</span>),]</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>universities, <span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>rank,<span class="at">group=</span>university,<span class="at">color=</span>university))<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="University-rankings_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
-</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">subset</span>(df, <span class="at">select =</span> <span class="sc">-</span><span class="fu">c</span>(link,logo))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
-<li></li>
+<li>Converting the ‘international_students’, ‘faculty_count’ and ‘rank_display’ column to numerical by removing all the special characters in them.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>df, <span class="fu">aes</span>(<span class="at">x=</span>type))<span class="sc">+</span><span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="University-rankings_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
-</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>international_students<span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">'_'</span>, <span class="st">''</span>, df<span class="sc">$</span>international_students))</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>faculty_count<span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">'_'</span>, <span class="st">''</span>, df<span class="sc">$</span>faculty_count))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>rank<span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">gsub</span>(<span class="st">'-</span><span class="sc">\\</span><span class="st">w+'</span>,<span class="st">''</span>,df<span class="sc">$</span>rank_display))</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>research_output<span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">'Very high'</span>,<span class="st">'Very High'</span>,df<span class="sc">$</span>research_output)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
-<li></li>
+<li>Converting ‘Year’ Column datatype to character.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>score, <span class="at">y=</span>student_faculty_ratio)) <span class="sc">+</span> <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 3687 rows containing missing values (`geom_point()`).</code></pre>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>df<span class="sc">$</span>year<span class="ot">&lt;-</span><span class="fu">as.character</span>(df<span class="sc">$</span>year)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell-output-display">
-<p><img src="University-rankings_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<ul>
-<li></li>
-</ul>
+</section>
+<section id="exploratory-data-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis:</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>score, <span class="at">y=</span>faculty_count,<span class="at">color=</span>type)) <span class="sc">+</span> <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 3690 rows containing missing values (`geom_point()`).</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>df,<span class="fu">aes</span>(<span class="at">x=</span>region))<span class="sc">+</span><span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="University-rankings_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <ul>
-<li></li>
+<li>Europe tends to be the continent with more number of universities though we have to consider the fact that they have included Russia in Europe although it belongs to both Europe and Asia. It is followed by Asia and&nbsp;North&nbsp;America.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>score)) <span class="sc">+</span> <span class="fu">geom_histogram</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 3662 rows containing non-finite values (`stat_bin()`).</code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ucb<span class="ot">&lt;-</span>df[df<span class="sc">$</span>university <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"University of Colorado Boulder"</span>),]</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>ucb, <span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>rank,<span class="at">group =</span> <span class="dv">1</span>))<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="University-rankings_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <ul>
-<li></li>
+<li>As we can see here, the QS ranking of University of Colorado Boulder has been decreasing gradually every year. In 2017 it is was ranked 150 but in 2022 it is ranking around 250.</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>universities,<span class="at">mapping=</span><span class="fu">aes</span>(<span class="at">x=</span>university,<span class="at">y=</span>score,<span class="at">fill=</span>university))<span class="sc">+</span><span class="fu">geom_boxplot</span>()<span class="sc">+</span><span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust=</span><span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>universities<span class="ot">&lt;-</span>df[df<span class="sc">$</span>university <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"University of Colorado Boulder"</span>,<span class="st">"Northwestern University"</span>,<span class="st">"John Hopkins University"</span>,<span class="st">"University of Southern California"</span>,<span class="st">"University at Buffalo SUNY"</span>),]</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>universities, <span class="fu">aes</span>(<span class="at">x=</span>year, <span class="at">y=</span>rank,<span class="at">group=</span>university,<span class="at">color=</span>university))<span class="sc">+</span><span class="fu">geom_line</span>()<span class="sc">+</span><span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="University-rankings_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-</section>
-</section>
-<section id="biasness-in-the-dataset" class="level2">
-<h2 class="anchored" data-anchor-id="biasness-in-the-dataset">Biasness in the dataset:</h2>
+<ul>
+<li>Among 4 universities - Northwestern University, University at Buffalo SUNY, University of Colorado Boulder and University of Southern California only University of Southern California followed the increasing trend in QS ranking. The QS ranking of Northwestern University has been following a constant trend while in the case of University of Colorado Boulder and University at Buffalo SUNY the QS ranking has been following a declining trend.</li>
+</ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>bias_in_score <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(df<span class="sc">$</span>score))<span class="sc">*</span><span class="dv">100</span><span class="sc">/</span><span class="fu">nrow</span>(df)</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>bias_in_score</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x=</span>score, <span class="at">y=</span>student_faculty_ratio)) <span class="sc">+</span> <span class="fu">geom_point</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3665 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="University-rankings_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>From the above scatter plot, we can infer the relationship between student_faculty_ratio and QS score. There is slightly negative correlation between student_faculty_ratio and score. The universities that had higher score had less student to faculty ratio. That means, there are more number of faculty for a given set of students in universities that were rated higher in QS rankings. (*******Use this last point in box plot —– Need edit)</li>
+</ul>
+<p><strong>Problem Statement Analysis:</strong></p>
+<ul>
+<li>Fetching the data of Top 100 ranked universities</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>top_univ<span class="ot">&lt;-</span>df[df<span class="sc">$</span>rank <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>),]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>Next to teaching, Academic research is viewed as a very important factor. Understanding research output can give us insights about how the top universities prioritize them.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(top_univ, <span class="fu">aes</span>(research_output, <span class="at">fill =</span>type)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">stat=</span><span class="st">"count"</span>, <span class="at">position =</span> <span class="st">"dodge"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="University-rankings_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>Add info</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df, <span class="fu">aes</span>(research_output, <span class="at">y=</span>faculty_count,<span class="at">fill =</span>type)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">stat=</span><span class="st">"identity"</span>,<span class="at">position =</span> <span class="st">"dodge"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 56 rows containing missing values (`geom_bar()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="University-rankings_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>Add info</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>df,<span class="at">mapping=</span><span class="fu">aes</span>(<span class="at">x=</span>research_output,<span class="at">y=</span>student_faculty_ratio,<span class="at">fill=</span>type))<span class="sc">+</span><span class="fu">geom_boxplot</span>()<span class="sc">+</span><span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust=</span><span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 53 rows containing non-finite values (`stat_boxplot()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="University-rankings_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>Add info</li>
+</ul>
+</section>
+</section>
+<section id="finding-bias-in-the-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="finding-bias-in-the-dataset">Finding Bias in the dataset:</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>bias_in_score <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(df<span class="sc">$</span>score))<span class="sc">*</span><span class="dv">100</span><span class="sc">/</span><span class="fu">nrow</span>(df)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>bias_in_score</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 56.49491</code></pre>
+<pre><code>[1] 56.34675</code></pre>
 </div>
 </div>
-<p>From the above code snippet, we can see that the column score has 56.49491% of the values missing for the given universities.</p>
+<ul>
+<li>From the above code snippet, we can see that the column score has 56.49491% of the values missing for the given universities.</li>
+</ul>
 <div class="cell">
 
 </div>
+<ul>
+<li>Add info</li>
+</ul>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion:</h2>
+<p>Add info</p>
 </section>
 </section>
 

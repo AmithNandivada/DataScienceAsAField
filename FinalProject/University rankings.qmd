@@ -1,0 +1,152 @@
+---
+title: "University rankings"
+format: html
+editor: visual
+---
+
+# Data Science in the field of Education
+
+**Team Members:**\
+VINEETH BASANI, viba2330\@colorado.edu\
+AMITH NANDIVADA, vena9865\@colorado.edu\
+SAI KUMAR MADDULA, kama3465\@colorado.edu\
+AKITHA PINISETTI, akpi9370\@colorado.edu\
+RISSHIKAA YANTRAPATI, riya9665\@colorado.edu\
+KUSHWANTH SAI LALAM, kula2453\@colorado.edu
+
+## About the dataset:
+
+#### What are QS Rankings and how are they calculated?
+
+Quacquarelli Symonds publishes its global university rankings every year in the form of the QS World University Rankings. One of the top three most popular university rankings in the world, the QS ranking is approved by the International Ranking Expert Group (IREG) and is published annually. QS releases its rankings of universities in collaboration with Elsevier. QS Ranking is based on academic reputation, employer reputation, citations per faculty, student-to-faculty ratio, international faculty ratio and international student ratio.
+
+#### Problem Statement:
+
+We wanted to analyze how Universities have fared world-wide based on the QS rankings and wanted to get answers to the below questions
+
+1.  What attributes define the top universities?
+2.  Does a university's location affect its ranking?
+3.  What are the common traits the top universities share?
+4.  What is the significance of academic research to a university?
+
+#### Content present in the dataset:
+
+The dataset contains 15 columns in total which gives information about - name of the university, year of ranking, rank given to the university, score of the university based on the six key metrics (i.e., academic reputation, employer reputation, citations per faculty, student-to-faculty ratio, international faculty ratio and international student ratio), link to the university profile page on QS website, country in which the university is located, city in which the university is located, region in which the university is located, link to the logo of the university, type of university (public or private), quality of research at the university, number of students assigned to per faculty, number of international students enrolled at the university, size of the university in terms of area, number of faculty or academic staff at the university.
+
+#### Resources:
+
+QS World University Rankings 2017 - 2022 data-set on Kaggle.\
+
+## Code:
+
+#### Dependency Packages:
+
+We have used Kaggle API to extract the data-set. Un-comment and run the below dependency packages before you run the code. Ignore if you already have the packages installed.
+
+```{r}
+# install.packages("devtools", dependencies = TRUE)
+# devtools::install_github("ldurazo/kaggler")
+
+# install.packages("tidyverse", dependencies = TRUE)
+# install.packages("ggplot2", dependencies = TRUE)
+```
+
+#### Libraries to be imported:
+
+```{r}
+library(readr)
+library(kaggler)
+library(ggplot2)
+library(tidyverse)
+```
+
+#### Data Extraction:
+
+```{r}
+
+kgl_auth(username="vineethreddi",key="f39f90e2cb1a8da2a58c0b63bba271a8")
+
+response <- kgl_datasets_download_all(owner_dataset = "padhmam/qs-world-university-rankings-2017-2022")
+
+download.file(response[["url"]], "temp.zip", mode="wb")
+
+unzip_result <- unzip("temp.zip", exdir = "data/", overwrite = TRUE)
+
+df <- read_csv("data/qs-world-university-rankings-2017-to-2022-V2.csv")
+df
+```
+
+#### EDA:
+
+-   Checking total number of rows and columns in the data.
+
+```{r}
+nrow(df)
+ncol(df)
+```
+
+-   Checking for Null values in the data.
+
+```{r}
+lapply(df, function(x) { length(which(is.na(x)))})
+```
+
+-   
+
+```{r}
+df$rank<- as.numeric(df$rank_display)
+df$year<-as.character(df$year)
+ucb<-df[df$university %in% c("University of Colorado Boulder"),]
+ggplot(data=ucb, aes(x=year, y=rank,group = 1))+geom_line()+geom_point()
+```
+
+-   
+
+```{r}
+universities<-df[df$university %in% c("University of Colorado Boulder","Northwestern University","John Hopkins University","University of Southern California","University at Buffalo SUNY"),]
+ggplot(data=universities, aes(x=year, y=rank,group=university,color=university))+geom_line()+geom_point()
+```
+
+-   
+
+```{r}
+ggplot(data=df, aes(x=type))+geom_bar()
+```
+
+-   
+
+```{r}
+ggplot(df, aes(x=score, y=student_faculty_ratio)) + geom_point()
+```
+
+-   
+
+```{r}
+ggplot(df, aes(x=score, y=faculty_count,color=type)) + geom_point()
+
+```
+
+-   
+
+```{r}
+ggplot(df, aes(x=score)) + geom_histogram()
+```
+
+-   
+
+```{r}
+ggplot(data=universities,mapping=aes(x=university,y=score,fill=university))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+## Biasness in the dataset:
+
+```{r}
+bias_in_score = sum(is.na(df$score))*100/nrow(df)
+bias_in_score
+```
+
+From the above code snippet, we can see that the column score has 56.49491% of the values missing for the given universities.
+
+```{r}
+
+```
